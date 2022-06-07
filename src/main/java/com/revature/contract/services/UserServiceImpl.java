@@ -2,6 +2,7 @@ package com.revature.contract.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.revature.contract.data.AssociateDAO;
 import com.revature.contract.data.RubricDAO;
@@ -20,7 +21,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Associate createUser(Associate associate) {
-		associate = initRubrics(associateDao.save(associate));
+		associate = associateDao.save(associate);
+		if (associate != null) {
+			associate = initRubrics(associateDao.save(associate));
+		}
 		return associate;
 	}
 
@@ -41,10 +45,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Associate logIn(String firstName, String lastName, String secretCode) {
-		Associate associate = associateDao.findBySecretCode(secretCode).get();
-		if (associate.getFirstName().equals(firstName) 
-				&& associate.getLastName().equals(lastName)) {
-			return associate;
+		Optional<Associate> associateOpt = associateDao.findBySecretCode(secretCode);
+		if (associateOpt.isPresent()) {
+			Associate associate = associateOpt.get();
+			if (associate.getFirstName().equals(firstName) 
+					&& associate.getLastName().equals(lastName)) {
+				return associate;
+			}
 		}
 		return null;
 	}

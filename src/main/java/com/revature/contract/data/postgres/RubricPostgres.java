@@ -13,11 +13,16 @@ import java.util.Optional;
 import com.revature.contract.data.RubricDAO;
 import com.revature.contract.models.Rubric;
 import com.revature.contract.models.RubricTheme;
+import com.revature.contract.utils.ConnectionType;
 import com.revature.contract.utils.ConnectionUtil;
 
 public class RubricPostgres implements RubricDAO {
-	private ConnectionUtil connUtil = ConnectionUtil.getConnectionUtil();
+	private ConnectionUtil connUtil;
 
+	public RubricPostgres(ConnectionType connType) {
+		connUtil = ConnectionUtil.getConnectionUtil(connType);
+	}
+	
 	@Override
 	@Deprecated
 	public Rubric save(Rubric r) {

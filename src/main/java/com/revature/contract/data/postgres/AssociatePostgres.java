@@ -18,11 +18,16 @@ import com.revature.contract.data.ScoreDAO;
 import com.revature.contract.models.Associate;
 import com.revature.contract.models.Rubric;
 import com.revature.contract.models.Score;
+import com.revature.contract.utils.ConnectionType;
 import com.revature.contract.utils.ConnectionUtil;
 
 public class AssociatePostgres implements AssociateDAO {
-	private ConnectionUtil connUtil = ConnectionUtil.getConnectionUtil();
+	private ConnectionUtil connUtil;
 
+	public AssociatePostgres(ConnectionType connType) {
+		connUtil = ConnectionUtil.getConnectionUtil(connType);
+	}
+	
 	@Override
 	public Associate save(Associate t) {
 		Connection conn = null;

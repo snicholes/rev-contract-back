@@ -13,11 +13,16 @@ import java.util.Optional;
 import com.revature.contract.data.DAOFactory;
 import com.revature.contract.data.ScoreDAO;
 import com.revature.contract.models.Score;
+import com.revature.contract.utils.ConnectionType;
 import com.revature.contract.utils.ConnectionUtil;
 
 public class ScorePostgres implements ScoreDAO {
-	private ConnectionUtil connUtil = ConnectionUtil.getConnectionUtil();
+	private ConnectionUtil connUtil;
 
+	public ScorePostgres(ConnectionType connType) {
+		connUtil = ConnectionUtil.getConnectionUtil(connType);
+	}
+	
 	@Override
 	@Deprecated
 	public Score save(Score t) {
