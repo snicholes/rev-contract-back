@@ -141,50 +141,53 @@ public class AssociatePostgres implements AssociateDAO {
 
 	@Override
 	public Associate delete(Associate t) {
-		Connection conn = null;
-		try {
-			conn = connUtil.getConnection();
-			conn.setAutoCommit(false);
- 
-			if (t.getRubrics().size()>0) {
-				RubricDAO rubricDao = DAOFactory.getRubricDAO();
-				for (Rubric r : t.getRubrics()) {
-					rubricDao.delete(r);
-				}
-			}
-			if (t.getActualScores().size()>0) {
-				ScoreDAO scoreDao = DAOFactory.getScoreDAO();
-				for (Score s : t.getActualScores()) {
-					scoreDao.delete(s);
-				}
-			}
-			String sql = "delete from associate where id = ?";
-
-			PreparedStatement pStmt = conn.prepareStatement(sql);
-			pStmt.setInt(1, t.getId());
-
-			int rowsUpdated = pStmt.executeUpdate();
-
-			if (rowsUpdated == 1) {
-				conn.commit();
-			} else {
-				conn.rollback();
-			}
-		} catch (SQLException e) {
+		if (findById(t.getId()).isPresent()) {
+			Connection conn = null;
 			try {
-				e.printStackTrace();
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		} finally {
-			try {
-				conn.close();
+				conn = connUtil.getConnection();
+				conn.setAutoCommit(false);
+	 
+				if (t.getRubrics().size()>0) {
+					RubricDAO rubricDao = DAOFactory.getRubricDAO();
+					for (Rubric r : t.getRubrics()) {
+						rubricDao.delete(r);
+					}
+				}
+				if (t.getActualScores().size()>0) {
+					ScoreDAO scoreDao = DAOFactory.getScoreDAO();
+					for (Score s : t.getActualScores()) {
+						scoreDao.delete(s);
+					}
+				}
+				String sql = "delete from associate where id = ?";
+	
+				PreparedStatement pStmt = conn.prepareStatement(sql);
+				pStmt.setInt(1, t.getId());
+	
+				int rowsUpdated = pStmt.executeUpdate();
+	
+				if (rowsUpdated == 1) {
+					conn.commit();
+				} else {
+					conn.rollback();
+				}
 			} catch (SQLException e) {
-				e.printStackTrace();
+				try {
+					e.printStackTrace();
+					conn.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			} finally {
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
+			return t;
 		}
-		return t;
+		return null;
 	}
 
 	@Override
@@ -216,14 +219,14 @@ public class AssociatePostgres implements AssociateDAO {
 	}
 
 	private String generateCode() {
-		String code = "";
+		int code = 0;
 
 		Random rand = new Random();
 
 		for (int i = 0; i < 6; i++) {
-			code += String.valueOf(rand.nextInt(10) * Math.pow(10, i));
+			code += (rand.nextInt(10) * Math.pow(10, i));
 		}
 
-		return code;
+		return String.valueOf(code);
 	}
 }

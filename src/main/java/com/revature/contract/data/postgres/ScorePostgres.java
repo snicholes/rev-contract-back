@@ -53,8 +53,10 @@ public class ScorePostgres implements ScoreDAO {
 
 			String[] keys = { "id" };
 			PreparedStatement pStmt = conn.prepareStatement(sql, keys);
-			if (updating) pStmt.setString(1, s.getNote());
-			else {
+			if (updating) {
+				pStmt.setString(1, s.getNote());
+				pStmt.setInt(2, s.getId());
+			} else {
 				pStmt.setInt(1, s.getWeek());
 				pStmt.setString(2, s.getNote());
 				pStmt.setInt(3, DAOFactory.getRubricDAO().findThemeByName(s.getRubricTheme()).getId());
@@ -119,7 +121,7 @@ public class ScorePostgres implements ScoreDAO {
 				score.setRubricTheme(resultSet.getString("theme"));
 				score.setNote(resultSet.getString("note"));
 				score.setWeek(resultSet.getInt("week"));
-				score.setValue(resultSet.getInt("value"));
+				score.setValue(resultSet.getInt("score_value"));
 			} else {
 				return Optional.empty();
 			}
@@ -153,7 +155,7 @@ public class ScorePostgres implements ScoreDAO {
 				score.setRubricTheme(resultSet.getString("theme"));
 				score.setNote(resultSet.getString("note"));
 				score.setWeek(resultSet.getInt("week"));
-				score.setValue(resultSet.getInt("value"));
+				score.setValue(resultSet.getInt("score_value"));
 				scores.add(score);
 			}
 		} catch (SQLException e) {
@@ -181,6 +183,7 @@ public class ScorePostgres implements ScoreDAO {
 				conn.commit();
 			} else {
 				conn.rollback();
+				return null;
 			}
 		} catch (SQLException e) {
 			try {
@@ -224,7 +227,7 @@ public class ScorePostgres implements ScoreDAO {
 				score.setRubricTheme(resultSet.getString("theme"));
 				score.setNote(resultSet.getString("note"));
 				score.setWeek(resultSet.getInt("week"));
-				score.setValue(resultSet.getInt("value"));
+				score.setValue(resultSet.getInt("score_value"));
 				scores.add(score);
 			}
 		} catch (SQLException e) {

@@ -53,8 +53,10 @@ public class RubricPostgres implements RubricDAO {
 
 			String[] keys = { "id" };
 			PreparedStatement pStmt = conn.prepareStatement(sql, keys);
-			if (updating) pStmt.setString(1, r.getDescription());
-			else {
+			if (updating) {
+				pStmt.setString(1, r.getDescription());
+				pStmt.setInt(2, r.getId());
+			} else {
 				pStmt.setInt(1, associateId);
 				pStmt.setInt(2, r.getRubricTheme().getId());
 				pStmt.setInt(3, r.getScore());
@@ -171,6 +173,7 @@ public class RubricPostgres implements RubricDAO {
 				conn.commit();
 			} else {
 				conn.rollback();
+				return null;
 			}
 		} catch (SQLException e) {
 			try {
@@ -201,6 +204,7 @@ public class RubricPostgres implements RubricDAO {
 					+ "from rubric_value "
 					+ "where associate_id=?";
 			PreparedStatement pStmt = conn.prepareStatement(sql);
+			pStmt.setInt(1, associateId);
 
 			ResultSet resultSet = pStmt.executeQuery();
 			while (resultSet.next()) {
@@ -244,7 +248,7 @@ public class RubricPostgres implements RubricDAO {
 
 	@Override
 	public RubricTheme findThemeById(int themeId) {
-		RubricTheme theme = new RubricTheme();
+		RubricTheme theme = null;
 		
 		try (Connection conn = connUtil.getConnection()) {
 			String sql = "select id, theme, description from rubric where id=?";
@@ -253,6 +257,7 @@ public class RubricPostgres implements RubricDAO {
 
 			ResultSet resultSet = pStmt.executeQuery();
 			if (resultSet.next()) {
+				theme = new RubricTheme();
 				theme.setId(resultSet.getInt("id"));
 				theme.setTheme(resultSet.getString("theme"));
 				theme.setDescription(resultSet.getString("description"));
@@ -266,7 +271,7 @@ public class RubricPostgres implements RubricDAO {
 
 	@Override
 	public RubricTheme findThemeByName(String name) {
-		RubricTheme theme = new RubricTheme();
+		RubricTheme theme = null;
 		
 		try (Connection conn = connUtil.getConnection()) {
 			String sql = "select id, theme, description from rubric where theme=?";
@@ -275,6 +280,7 @@ public class RubricPostgres implements RubricDAO {
 
 			ResultSet resultSet = pStmt.executeQuery();
 			if (resultSet.next()) {
+				theme = new RubricTheme();
 				theme.setId(resultSet.getInt("id"));
 				theme.setTheme(resultSet.getString("theme"));
 				theme.setDescription(resultSet.getString("description"));

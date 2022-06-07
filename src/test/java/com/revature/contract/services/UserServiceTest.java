@@ -7,8 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +22,7 @@ import com.revature.contract.data.AssociateDAO;
 import com.revature.contract.data.RubricDAO;
 import com.revature.contract.models.Associate;
 import com.revature.contract.models.Rubric;
+import com.revature.contract.models.RubricTheme;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -29,11 +33,22 @@ public class UserServiceTest {
 	@InjectMocks
 	private UserServiceImpl userServ;
 	
+	private static List<RubricTheme> mockThemes;
+	
+	@BeforeAll
+	public static void setUp() {
+		mockThemes = new LinkedList<>();
+		
+		RubricTheme theme = new RubricTheme();
+		mockThemes.add(theme);
+	}
+	
 	// create user
 	@Test
 	public void createUserSuccess() {
 		Associate mockAssociate = new Associate();
 		when(associateDao.save(mockAssociate)).thenReturn(mockAssociate);
+		when(rubricDao.findAllThemes()).thenReturn(mockThemes);
 		mockAssociate = userServ.createUser(mockAssociate);
 		assertFalse(mockAssociate.getRubrics().isEmpty());
 	}
