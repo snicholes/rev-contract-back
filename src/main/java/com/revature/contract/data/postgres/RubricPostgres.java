@@ -76,6 +76,7 @@ public class RubricPostgres implements RubricDAO {
 				if (generatedKeys.next()) {
 					int newId = generatedKeys.getInt(1);
 					r.setId(newId);
+					conn.commit();
 				}
 			}
 		} catch (SQLException e) {
@@ -103,7 +104,7 @@ public class RubricPostgres implements RubricDAO {
 			String sql = "select "
 					+ "id, "
 					+ "rubric_id, score, "
-					+ "rubric_value.description, "
+					+ "rubric_value.description "
 					+ "from rubric_value "
 					+ "where id=?";
 			PreparedStatement pStmt = conn.prepareStatement(sql);
@@ -134,7 +135,7 @@ public class RubricPostgres implements RubricDAO {
 			String sql = "select "
 					+ "id, "
 					+ "rubric_id, score, "
-					+ "rubric_value.description, "
+					+ "rubric_value.description "
 					+ "from rubric_value";
 			Statement stmt = conn.createStatement();
 
@@ -200,7 +201,7 @@ public class RubricPostgres implements RubricDAO {
 			String sql = "select "
 					+ "id, "
 					+ "rubric_id, score, "
-					+ "rubric_value.description, "
+					+ "description "
 					+ "from rubric_value "
 					+ "where associate_id=?";
 			PreparedStatement pStmt = conn.prepareStatement(sql);
@@ -290,6 +291,60 @@ public class RubricPostgres implements RubricDAO {
 		}
 		
 		return theme;
+	}
+
+	@Override
+	public Collection<Rubric> saveAll(Collection<Rubric> rubrics, int associateId) {
+		Connection conn = null;
+		try {
+			conn = connUtil.getConnection();
+			conn.setAutoCommit(false);
+
+			StringBuilder sql = new StringBuilder("insert into rubric_value ("
+					+ "id,"
+					+ "associate_id,"
+					+ "rubric_id,"
+					+ "score,"
+					+ "description"
+					+ ") values ");
+			for (Rubric rubric : rubrics) {
+				sql.append("(default,");
+				sql.append(associateId + ",");
+				sql.append(rubric.getRubricTheme().getId() + ",");
+				sql.append(rubric.getScore() + ",");
+				sql.append((rubric.getDescription().length()>0)?(rubric.getDescription()):("''"));
+				sql.append("),");
+			}
+			sql.replace(sql.length()-1, sql.length(), ";");
+
+			String[] keys = { "id" };
+			PreparedStatement pStmt = conn.prepareStatement(sql.toString(), keys);
+
+			int rowsUpdated = pStmt.executeUpdate();
+
+			ResultSet generatedKeys = pStmt.getGeneratedKeys();
+			for (Rubric rubric : rubrics) {
+				if (generatedKeys.next()) {
+					int newId = generatedKeys.getInt(1);
+					rubric.setId(newId);
+				}
+			}
+			conn.commit();
+		} catch (SQLException e) {
+			try {
+				e.printStackTrace();
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return rubrics;
 	}
 
 }

@@ -69,6 +69,7 @@ public class AssociatePostgres implements AssociateDAO {
 				if (generatedKeys.next()) {
 					int newId = generatedKeys.getInt(1);
 					t.setId(newId);
+					conn.commit();
 				}
 				
 			}

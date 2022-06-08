@@ -22,6 +22,8 @@ public class ContractApp {
 			config.enableCorsForAllOrigins();
 		});
 
+		app.start();
+		
 		ScoreService scoreServ = new ScoreServiceImpl(DAOFactory.getAssociateDAO(), DAOFactory.getScoreDAO());
 		UserService userServ = new UserServiceImpl(DAOFactory.getAssociateDAO(), DAOFactory.getRubricDAO());
 

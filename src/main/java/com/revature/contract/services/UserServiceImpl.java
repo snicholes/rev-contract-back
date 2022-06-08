@@ -1,6 +1,7 @@
 package com.revature.contract.services;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public class UserServiceImpl implements UserService {
 	public Associate createUser(Associate associate) {
 		associate = associateDao.save(associate);
 		if (associate != null) {
-			associate = initRubrics(associateDao.save(associate));
+			associate = initRubrics(associate);
 		}
 		return associate;
 	}
@@ -59,15 +60,17 @@ public class UserServiceImpl implements UserService {
 	private Associate initRubrics(Associate associate) {
 		List<RubricTheme> themes = (List<RubricTheme>) rubricDao.findAllThemes();
 		
+		List<Rubric> newRubrics = new LinkedList<>();
 		for (RubricTheme theme : themes) {
 			for (int score = 0; score<6; score++) {
 				Rubric rubric = new Rubric();
 				rubric.setRubricTheme(theme);
 				rubric.setScore(score);
-				rubricDao.save(rubric);
 				associate.addRubricValue(rubric);
+				newRubrics.add(rubric);
 			}
 		}
+		rubricDao.saveAll(newRubrics, associate.getId());
 		return associate;
 	}
 

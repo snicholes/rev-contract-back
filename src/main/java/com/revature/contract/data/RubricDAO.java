@@ -11,4 +11,5 @@ public interface RubricDAO extends GenericDAO<Rubric> {
 	public Collection<RubricTheme> findAllThemes();
 	public RubricTheme findThemeById(int themeId);
 	public RubricTheme findThemeByName(String name);
+	public Collection<Rubric> saveAll(Collection<Rubric> rubrics, int associateId);
 }

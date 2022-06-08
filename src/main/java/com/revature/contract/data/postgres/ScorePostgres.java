@@ -77,6 +77,7 @@ public class ScorePostgres implements ScoreDAO {
 				if (generatedKeys.next()) {
 					int newId = generatedKeys.getInt(1);
 					s.setId(newId);
+					conn.commit();
 				}
 			}
 		} catch (SQLException e) {
